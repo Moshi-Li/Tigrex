@@ -4,7 +4,7 @@ const WRAPPER_ELEMENT = "WRAPPER_ELEMENT";
 const HTML_ELEMENT = "HTML_ELEMENT";
 const TEXT_ELEMENT = "TEXT ELEMENT";
 
-const getElementType = element => {
+const getElementType = (element) => {
   let { type } = element;
 
   if (typeof type === "string") {
@@ -73,7 +73,7 @@ export const reconcile = (parentDom, instance, element) => {
   }
 };
 
-const instantiate = element => {
+const instantiate = (element) => {
   const elementType = getElementType(element);
 
   if (elementType === CLASS_COMPONENT) {
@@ -97,8 +97,8 @@ const instantiate = element => {
 
     const childElements = props.children || [];
     const childInstances = childElements.map(instantiate);
-    const childDoms = childInstances.map(childInstance => childInstance.dom);
-    childDoms.forEach(childDom => dom.appendChild(childDom));
+    const childDoms = childInstances.map((childInstance) => childInstance.dom);
+    childDoms.forEach((childDom) => dom.appendChild(childDom));
     const instance = { dom, element, childInstances };
 
     return instance;
@@ -109,8 +109,8 @@ const instantiate = element => {
 
     const childElements = props.children || [];
     const childInstances = childElements.map(instantiate);
-    const childDoms = childInstances.map(childInstance => childInstance.dom);
-    childDoms.forEach(childDom => dom.appendChild(childDom));
+    const childDoms = childInstances.map((childInstance) => childInstance.dom);
+    childDoms.forEach((childDom) => dom.appendChild(childDom));
     const instance = { dom, element, childInstances };
 
     return instance;
@@ -121,7 +121,7 @@ const instantiate = element => {
     const dom = childInstance.dom;
     const publicInstance = {
       props,
-      __internalInstance: instance
+      __internalInstance: instance,
     };
     Object.assign(instance, { dom, element, childInstance, publicInstance });
     return instance;
@@ -146,17 +146,17 @@ const reconcileChildren = (instance, element) => {
     const newChildInstance = reconcile(dom, childInstance, childElement);
     newChildInstances.push(newChildInstance);
   }
-  return newChildInstances.filter(instance => instance != null);
+  return newChildInstances.filter((instance) => instance != null);
 };
 
 const updateDomProperties = (dom, prevProps, nextProps) => {
-  const isEvent = name => name.startsWith("on");
-  const isAttribute = name => !isEvent(name) && name != "children";
+  const isEvent = (name) => name.startsWith("on");
+  const isAttribute = (name) => !isEvent(name) && name != "children";
 
   // Remove event listeners
   Object.keys(prevProps)
     .filter(isEvent)
-    .forEach(name => {
+    .forEach((name) => {
       const eventType = name.toLowerCase().substring(2);
       dom.removeEventListener(eventType, prevProps[name]);
     });
@@ -164,21 +164,21 @@ const updateDomProperties = (dom, prevProps, nextProps) => {
   // Remove attributes
   Object.keys(prevProps)
     .filter(isAttribute)
-    .forEach(name => {
+    .forEach((name) => {
       dom[name] = null;
     });
 
   // Set attributes
   Object.keys(nextProps)
     .filter(isAttribute)
-    .forEach(name => {
+    .forEach((name) => {
       dom[name] = nextProps[name];
     });
 
   // Add event listeners
   Object.keys(nextProps)
     .filter(isEvent)
-    .forEach(name => {
+    .forEach((name) => {
       const eventType = name.toLowerCase().substring(2);
       dom.addEventListener(eventType, nextProps[name]);
     });
@@ -188,10 +188,11 @@ const createPublicInstance = (element, internalInstance) => {
   const { type, props } = element;
   const publicInstance = new type(props);
   publicInstance.__internalInstance = internalInstance;
+  console.log(publicInstance);
   return publicInstance;
 };
 
-const updateInstance = internalInstance => {
+const updateInstance = (internalInstance) => {
   const parentDom = internalInstance.dom.parentNode;
   const element = internalInstance.element;
   reconcile(parentDom, internalInstance, element);
@@ -202,12 +203,12 @@ export const createElement = (type, config, ...args) => {
   const hasChildren = args.length > 0;
   const rawChildren = hasChildren ? [].concat(...args) : [];
   props.children = rawChildren
-    .filter(c => c != null && c !== false)
-    .map(c => (c instanceof Object ? c : createTextElement(c)));
+    .filter((c) => c != null && c !== false)
+    .map((c) => (c instanceof Object ? c : createTextElement(c)));
   return { type, props };
 };
 
-const createTextElement = value => {
+const createTextElement = (value) => {
   return createElement(TEXT_ELEMENT, { nodeValue: value });
 };
 
